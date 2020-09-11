@@ -1,0 +1,118 @@
+<html>
+<head>
+  <script src="https://cdn.anychart.com/samples/maps-general-features/world-bubble-map/data.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/js/anychart-base.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/js/anychart-ui.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/js/anychart-exports.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/js/anychart-map.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/v8/js/anychart-data-adapter.min.js"></script>
+  <script src="https://cdn.anychart.com/geodata/2.0.0/custom/world/world.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.15/proj4.js"></script>
+  <link href="https://cdn.anychart.com/releases/v8/css/anychart-ui.min.css" type="text/css" rel="stylesheet">
+  <link href="https://cdn.anychart.com/releases/v8/fonts/css/anychart-font.min.css" type="text/css" rel="stylesheet">
+  <style type="text/css">
+
+      html,
+      body,
+      #container {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    
+</style>
+</head>
+<body>
+    
+  <div id="container"></div>
+    
+  
+  <script>
+
+      anychart.onDocumentReady(function () {
+        // The data used in this sample can be obtained from the CDN
+        // https://cdn.anychart.com/samples/maps-general-features/world-bubble-map/data.json
+        anychart.data.loadJsonFile(
+          'https://raw.githubusercontent.com/mingzhang1001/tradingdata/master/data2.json',
+		  //'https://cdn.anychart.com/samples/maps-general-features/world-bubble-map/data.json',
+          function (data) {
+            var map = anychart.map();
+            map
+              .credits()
+              .enabled(true)
+              .url(
+                'https://data.stats.gov.cn/english/index.htm'
+              )
+              .logoSrc('https://en.wikipedia.org/static/favicon/wikipedia.ico')
+              .text(
+                'Data source: https://data.stats.gov.cn/english/easyquery.htm?cn=C01'
+              );
+
+            map
+              .title()
+              .enabled(true)
+              .useHtml(true)
+              .padding([10, 0, 10, 0])
+              .text(
+                'Total Value Of China Trading by Country<br/>' +
+                  '<span  style="color:#929292; font-size: 12px;">' +
+                  '(Data was collected from National Bureau of Statistics of China, 2020)</span>'
+              );
+
+            map.geoData('anychart.maps.world');
+
+            map.interactivity().selectionMode('none');
+            map.padding(0);
+
+            var dataSet = anychart.data.set(data);
+            var densityData = dataSet.mapAs({ size: 'population' });
+            var series = map.bubble(densityData);
+
+            // set chart bubble settings
+            map.maxBubbleSize('10%').minBubbleSize('0.3%');
+
+            series.labels(false).selectionMode('none');
+
+            var choropleth = map.choropleth(densityData);
+            choropleth
+              .selectionMode('none')
+              .fill('#eaeaea')
+              .stroke('#D2D2D2')
+              .labels(false);
+
+            choropleth.hovered().stroke('#eaeaea').fill('#D2D2D2');
+
+            map
+              .tooltip()
+              .useHtml(true)
+              .format(function () {
+                return (
+                  '<span style="color: #d9d9d9">Density</span>: ' +
+                  parseFloat(this.getData('density')).toLocaleString() +
+                  ' pop./km² <br/>' +
+                  '<span style="color: #d9d9d9">Population</span>: ' +
+                  parseInt(this.getData('population')).toLocaleString() +
+                  '<br/>' +
+                  '<span style="color: #d9d9d9">Area</span>: ' +
+                  parseInt(this.getData('area')).toLocaleString() +
+                  ' km²'
+                );
+              });
+
+            // create zoom controls
+            var zoomController = anychart.ui.zoom();
+            zoomController.render(map);
+
+            // set container id for the chart
+            map.container('container');
+            // initiate chart drawing
+            map.draw();
+          }
+        );
+      });
+    
+</script>
+</body>
+</html>
+                
